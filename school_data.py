@@ -14,24 +14,28 @@ from given_data import year_2013, year_2014, year_2015, year_2016, year_2017, ye
 
 # You may add your own additional classes, functions, variables, etc.
 
+# List of enrollment data by year
 years_data = [year_2013, year_2014, year_2015, year_2016, year_2017, year_2018, year_2019, year_2020, year_2021, year_2022]
 
+# List of high school names
 school_names = ["Centennial High School", "Robert Thirsk School", "Louise Dean School", "Queen Elizabeth High School", 
                     "Forest Lawn High School", "Crescent Heights High School", "Western Canada High School", "Central Memorial High School", 
                     "James Fowler High School", "Ernest Manning High School", "William Aberhart High School", "National Sport School", 
                     "Henry Wise Wood High School", "Bowness High School", "Lord Beaverbrook High School", "Jack James High School", 
                     "Sir Winston Churchill High School", "Dr. E. P. Scarlett High School", "John G Diefenbaker High School", "Lester B. Pearson High School"]
 
+# List of school codes
 school_codes = [1224, 1679, 9626, 9806, 9813, 9815, 9816, 9823, 9825, 9826, 9829, 9830, 9836, 9847, 9850, 9856, 9857, 9858, 9860, 9865]
 
+# List of years
 years = ["2013", "2014", "2015", "2016", "2017", "2018", "2019", "2020", "2021", "2022"]
 
+# List of grades
 grades = ["Grade 10", "Grade 11", "Grade 12"]
 
+# Calculate the number of schools, grades, and years
 num_schools = len(school_names)
-
 num_grades = len(grades)
-
 num_years = len(years)
 
 # Initialize a 3D numpy array to store enrollment data
@@ -60,6 +64,7 @@ def get_school(school_input):
         # Check if the school name exists in the list of school names
         if school_input in school_names:
             return school_names.index(school_input)
+        
         else:
             # Raise an error if the school name is not found
             raise ValueError("Please enter a valid school name or code.")
@@ -74,6 +79,7 @@ def get_school(school_input):
     else:
         # Raise an error if the input is neither a string nor an integer
         raise ValueError("Please enter a valid school name or code.")
+
 
 def median_enrollment_over_500(school_input, enrollment_data):
     """
@@ -122,23 +128,24 @@ def calculate_school_stats(school_index):
     # Extract enrollment data for the specified school
     school_enrollment = enrollment_data[school_index]
 
-    # Calculate data required for Stage 2
+    # Calculate data required for Stage 2 and store them as elements in the school_stats dictionary
+
+    # Calculate the mean enrollment for Grade 10
     school_stats['mean_grade_10'] = int(np.nanmean(school_enrollment[0, :]))
-    
+    # Calculate the mean enrollment for Grade 11
     school_stats['mean_grade_11'] = int(np.nanmean(school_enrollment[1, :]))
-    
+    # Calculate the mean enrollment for Grade 12
     school_stats['mean_grade_12'] = int(np.nanmean(school_enrollment[2, :]))
-
+    # Find the highest enrollment among all grades
     school_stats['highest_enrollment'] = int(np.nanmax(school_enrollment)) 
-    
+    # Find the lowest enrollment among all grades
     school_stats['lowest_enrollment'] = int(np.nanmin(school_enrollment))
-
+    # Calculate total enrollment for each year
     school_stats['yearly_enrollments'] = {year: int(np.nansum(school_enrollment[:, i])) for i, year in enumerate(years)}
-
+    # Calculate total enrollment over the 10 year period
     total_enrollment_per_year = np.nansum(school_enrollment, axis = 0)
-    
     school_stats['total_enrollment_10_years'] = int(np.nansum(total_enrollment_per_year))
-    
+    # Calculate the mean total yearly enrollment over the 10 year period
     school_stats['mean_total_yearly_enrollment'] = int(np.nanmean(total_enrollment_per_year))
     
     return school_stats
@@ -154,17 +161,19 @@ def calculate_general_statistics():
     # Initialize an empty dictionary to store general statistics
     general_stats = {}
 
-    # Calculate data required for Stage 3
-    general_stats['mean_enrollment_2013'] = int(np.floor(enrollment_data[:, :, 0].mean()))
+    # Calculate data required for Stage 3 and store them as elements in the general_stats dictionary
 
+    # Calculate the mean enrollment for the year 2013
+    general_stats['mean_enrollment_2013'] = int(np.floor(enrollment_data[:, :, 0].mean()))
+    # Use masked array to handle NaN values in enrollment data for 2022
     masked_enrollment_2022 = np.ma.masked_invalid(enrollment_data[:, :, -1])
-    
+    # Calculate the mean enrollment for the year 2022, ignoring NaN values with masked array
     general_stats['mean_enrollment_2022'] = int(np.floor(masked_enrollment_2022.mean()))
-    
+    # Calculate the total enrollment for the year 2022, ignoring NaN values with masked array
     general_stats['total_enrollment_2022'] = int(np.nansum(masked_enrollment_2022))
-    
+    # Find the highest yearly enrollment across all years   
     general_stats['highest_yearly_enrollment'] = int(np.nanmax(enrollment_data))
-    
+    # Find the lowest yearly enrollment across all years
     general_stats['lowest_yearly_enrollment'] = int(np.nanmin(enrollment_data))
 
     return general_stats
@@ -220,7 +229,7 @@ def main():
     print("Lowest enrollment for a single grade:", school_stats['lowest_enrollment'])
     for year, total_enrollment in school_stats['yearly_enrollments'].items():
         print(f"Total enrollment for {year}: {int(total_enrollment)}")
-    print("Total ten year enrolment:", school_stats['total_enrollment_10_years'])
+    print("Total ten year enrollment:", school_stats['total_enrollment_10_years'])
     print("Mean total enrollment over 10 years:", school_stats['mean_total_yearly_enrollment'])
     median_enrollment_over_500(school_input, enrollment_data)
 
